@@ -1,4 +1,4 @@
-FROM golang:1.23.2-alpine3.20
+FROM golang:1.23.2-alpine3.20 AS buildStage
 
 WORKDIR /pasta
 
@@ -7,7 +7,16 @@ COPY main.go ./
 
 RUN go build -o pasta
 
-EXPOSE 8080
-EXPOSE 80
+FROM alpine:3.20
 
-CMD ["./pasta"]
+USER root
+RUN mkdir /pasta && chown 1001:1001 /pasta
+
+USER 1001:1001
+WORKDIR /pasta
+COPY --from=buildStage /pasta/pasta /pasta
+HEALTHCHECK --interval=5m --timeout=3s \
+    CMD curl -f http://localhost:8080/ || exit 1
+EXPOSE 8080
+
+ENTRYPOINT ["/pasta/pasta"]
