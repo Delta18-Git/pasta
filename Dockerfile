@@ -15,8 +15,6 @@ RUN mkdir /pasta && chown 1001:1001 /pasta
 USER 1001:1001
 WORKDIR /pasta
 COPY --from=buildStage /pasta/pasta /pasta
-HEALTHCHECK --interval=5m --timeout=3s \
-    CMD curl -f http://localhost:8080/ || exit 1
 EXPOSE 8080
 
 ENTRYPOINT ["/pasta/pasta"]
